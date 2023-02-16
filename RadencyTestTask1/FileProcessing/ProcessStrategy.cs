@@ -1,4 +1,3 @@
-using System.Runtime.Serialization;
 using RadencyTestTask1.DocumentReaders;
 using RadencyTestTask1.Entities;
 using RadencyTestTask1.Helpers;
@@ -6,23 +5,21 @@ using RadencyTestTask1.Helpers;
 namespace RadencyTestTask1.FileProcessing;
 public enum ProcessingOptions
 {
-    [EnumMember(Value = "ReadOnce")]
     ReadOnce,
-    [EnumMember(Value = "ReadContinuously")]
-    ReadContinouosly,
+    ReadContinously,
+    ReadAll,
 }
 public abstract class ProcessStrategy
 {
-    public AppConfig Config;
     public CancellationTokenSource TokenSource;
+    public int ChunkSize { get; set; } = 1000;
     protected AggregationSaver AggregationSaver { get; set; }
-    protected  List<Task> SaveTasks;
+    protected readonly List<Task> SaveTasks;
 
-    public ProcessStrategy(AppConfig config)
+    public ProcessStrategy()
     {
-        Config = config;
         TokenSource = new CancellationTokenSource();
-        AggregationSaver = new (Config.OutputDirectory);
+        AggregationSaver = new ("output");
         SaveTasks = new();
     }
     public abstract void ProcessDirectory(string path);
@@ -37,7 +34,6 @@ public abstract class ProcessStrategy
             ".txt" => new TxtDocumentReader(filePath),
             _ => throw new NotImplementedException(),
         };
-        AggregationSaver.ParsedFiles++;
         foreach (var line in documentReader.GetLines())
         {
             if(TokenSource.IsCancellationRequested)
@@ -47,7 +43,7 @@ public abstract class ProcessStrategy
             }
             AggregationSaver.ParsedLines++;
             chunk.Add(line);
-            if (chunk.Count <= Config.ChunkSize) continue;
+            if (chunk.Count <= ChunkSize) continue;
             var chunkCopy = chunk;
             aggregations.Add(Task.Run(() => Aggregator.AggregateLines(chunkCopy,filePath,TokenSource.Token)));
             chunk = new();

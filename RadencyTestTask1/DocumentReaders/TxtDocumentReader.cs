@@ -1,3 +1,5 @@
+using RadencyTestTask1.DocumentReaders;
+using RadencyTestTask1.LineReaders;
 using RadencyTestTask1.LineReaders;
 
 namespace RadencyTestTask1.DocumentReaders;

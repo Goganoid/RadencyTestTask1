@@ -1,7 +1,13 @@
-﻿using RadencyTestTask1.FileProcessing;
-using RadencyTestTask1.Helpers;
+﻿using RadencyTestTask1;
+using RadencyTestTask1.FileProcessing;
 
-var config = ConfigReader.ReadConfig();
+const string dir = "watch2"; 
 
-var fileProcessor = new FileProcessor(config);
+Console.WriteLine("Hello, World!");
+foreach (string arg in Environment.GetCommandLineArgs())  
+{  
+    Console.WriteLine(arg);  
+} 
+
+var fileProcessor = new FileProcessor("./watch2",ProcessingOptions.ReadContinously);
 fileProcessor.Run();

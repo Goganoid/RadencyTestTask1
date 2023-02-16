@@ -7,24 +7,18 @@ namespace RadencyTestTask1.Helpers;
 
 public class AggregationSaver
 {
-    private static int _counter = 0;
     public int ParsedFiles  = 0;
     public  int ParsedLines  = 0;
     private int _foundErrors;
-    private readonly List<string> _invalidFiles  = new();
+    private List<string> InvalidFiles  = new();
 
+    private readonly string _baseOutputDir;
     private readonly string _outputDir;
-    private readonly string _logPath;
 
     public AggregationSaver(string baseOutputDir)
     {
-        _outputDir = Path.Join(baseOutputDir, GetDateDir());
-        _logPath = Path.Join(_outputDir,"meta.log");
-        if (File.Exists(_logPath))
-        {
-            RecoverLogs();
-        }
-       
+        _baseOutputDir = baseOutputDir;
+        _outputDir = Path.Join(_baseOutputDir, GetDateDir());
     }
     private static string GetDateDir()
     {
@@ -38,31 +32,15 @@ public class AggregationSaver
         report.AppendLine($"parsed_files:{ParsedFiles}");
         report.AppendLine($"parsed_lines:{ParsedLines}");
         report.AppendLine($"found_errors:{_foundErrors}");
-        report.AppendLine($"invalid_files:[{string.Join(',',_invalidFiles)}]");
+        report.AppendLine($"invalid_files:[{string.Join(',',InvalidFiles)}]");
         return report.ToString();
-    }
-
-    private void RecoverLogs()
-    {
-        var content = File.ReadAllLines(_logPath);
-        var props = content.Select(line => line.Split(':')[1]).ToList();
-        ParsedFiles += int.TryParse(props[0], out var parsedFiles) ? parsedFiles : 0;
-        ParsedLines += int.TryParse(props[1], out var parsedLines) ? parsedLines : 0;
-        _foundErrors += int.TryParse(props[2], out var foundErrors) ? foundErrors : 0;
-        var invalidFiles = props[3]
-            .Replace("[", "")
-            .Replace("]", "")
-            .Split(",");
-        foreach (var invalidFile in invalidFiles)
-        {
-            _invalidFiles.Add(invalidFile);
-        }
     }
     public async Task SaveLog()
     {
         var log = GenerateLog();
         Directory.CreateDirectory(_outputDir);
-        await File.WriteAllTextAsync(_logPath, log);
+        var filePath = Path.Join(_outputDir,"meta.log");
+        await File.WriteAllTextAsync(filePath, log);
     }
     public async Task SaveTo(Task<AggregationResult> aggregationTask,string baseFilePath,CancellationToken token)
     {
@@ -70,7 +48,7 @@ public class AggregationSaver
         if (aggregationResult.InvalidLines > 0)
         {
             _foundErrors+=aggregationResult.InvalidLines;
-            _invalidFiles.Add(baseFilePath);
+            InvalidFiles.Add(baseFilePath);
         }
         DefaultContractResolver contractResolver = new DefaultContractResolver
         {
@@ -83,8 +61,8 @@ public class AggregationSaver
             Formatting = Formatting.Indented
         });
         Directory.CreateDirectory(_outputDir);
-        var filePath = Path.Join(_outputDir, $"output{_counter++}");
-        await File.WriteAllTextAsync(filePath, serialized,token);
+        var filePath = Path.Join(_outputDir, Path.GetFileNameWithoutExtension(baseFilePath) + ".json");
+        await File.WriteAllTextAsync(filePath, serialized);
         await SaveLog();
     }
 }
