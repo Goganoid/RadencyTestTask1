@@ -22,6 +22,7 @@ public class FileProcessor
 
     public void Run()
     {
+        Directory.CreateDirectory(_config.WatchDirectory);
         ProcessStrategy?.ProcessDirectory(_config.WatchDirectory);
     }
 }
