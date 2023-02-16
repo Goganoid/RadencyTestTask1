@@ -25,10 +25,14 @@ function createLine() {
     ${category}`.replaceAll("\n","");
 }
 
-const maxSize = 4;
+const maxSize = 5;
 const baseSize = 2;
 const repeats = 10;
 let writeCsv = false;
+const dir ='test_documents';
+if (!fs.existsSync(dir)){
+    fs.mkdirSync(dir);
+}
 for(let repeat=0;repeat<repeats;repeat++) {
     for (let multiplicator = 10; multiplicator < Math.pow(10, maxSize); multiplicator = multiplicator * 10) {
         let content = '';
@@ -38,8 +42,8 @@ for(let repeat=0;repeat<repeats;repeat++) {
         for (let fileIndex = 0; fileIndex < baseSize * multiplicator; fileIndex++) {
             content += createLine() + '\n';
         }
-        const path = `./watch1/${multiplicator * baseSize}_${getRandomFloat(0, 2000, 0)}.${writeCsv ? 'csv' : 'txt'}`;
-        fs.writeFile(path, content, err => console.log(err));
+        const path = `./${dir}/${multiplicator * baseSize}_${getRandomFloat(0, 2000, 0)}.${writeCsv ? 'csv' : 'txt'}`;
+        fs.writeFile(path, content, err =>err && console.log(err));
         writeCsv = !writeCsv;
     }
 }

@@ -1,7 +1,9 @@
 using RadencyTestTask1.LineReaders;
 
 namespace RadencyTestTask1.DocumentReaders;
-
+/// <summary>
+/// Document factory
+/// </summary>
 public abstract class DocumentReader
 {
     protected string Path { get; set; }
@@ -21,6 +23,5 @@ public abstract class DocumentReader
             yield return line;
             line = reader.ReadLine();
         }
-        if(line==null) yield break;
     }
 }

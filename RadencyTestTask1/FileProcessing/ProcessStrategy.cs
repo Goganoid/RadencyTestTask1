@@ -1,3 +1,4 @@
+using System.Runtime.Serialization;
 using RadencyTestTask1.DocumentReaders;
 using RadencyTestTask1.Entities;
 using RadencyTestTask1.Helpers;
@@ -5,21 +6,26 @@ using RadencyTestTask1.Helpers;
 namespace RadencyTestTask1.FileProcessing;
 public enum ProcessingOptions
 {
+    [EnumMember(Value = "ReadOnce")]
     ReadOnce,
-    ReadContinously,
-    ReadAll,
+    [EnumMember(Value = "ReadContinuously")]
+    ReadContinouosly,
 }
+/// <summary>
+/// Abstract class for other strategies and with default ProcessFile implementation
+/// </summary>
 public abstract class ProcessStrategy
 {
-    public CancellationTokenSource TokenSource;
-    public int ChunkSize { get; set; } = 1000;
+    protected AppConfig Config;
+    protected CancellationTokenSource TokenSource;
     protected AggregationSaver AggregationSaver { get; set; }
-    protected readonly List<Task> SaveTasks;
+    protected  List<Task> SaveTasks;
 
-    public ProcessStrategy()
+    protected ProcessStrategy(AppConfig config)
     {
+        Config = config;
         TokenSource = new CancellationTokenSource();
-        AggregationSaver = new ("output");
+        AggregationSaver = new (Config.OutputDirectory);
         SaveTasks = new();
     }
     public abstract void ProcessDirectory(string path);
@@ -34,6 +40,7 @@ public abstract class ProcessStrategy
             ".txt" => new TxtDocumentReader(filePath),
             _ => throw new NotImplementedException(),
         };
+        AggregationSaver.ParsedFiles++;
         foreach (var line in documentReader.GetLines())
         {
             if(TokenSource.IsCancellationRequested)
@@ -43,12 +50,12 @@ public abstract class ProcessStrategy
             }
             AggregationSaver.ParsedLines++;
             chunk.Add(line);
-            if (chunk.Count <= ChunkSize) continue;
+            if (chunk.Count <= Config.ChunkSize) continue;
             var chunkCopy = chunk;
-            aggregations.Add(Task.Run(() => Aggregator.AggregateLines(chunkCopy,filePath,TokenSource.Token)));
+            aggregations.Add(Task.Run(() => Aggregator.AggregateLines(chunkCopy,TokenSource.Token)));
             chunk = new();
         }
-        if (chunk.Count > 0) aggregations.Add(Task.Run(()=>Aggregator.AggregateLines(chunk,filePath,TokenSource.Token)));
+        if (chunk.Count > 0) aggregations.Add(Task.Run(()=>Aggregator.AggregateLines(chunk,TokenSource.Token)));
         SaveTasks.Add(
             AggregationSaver.SaveTo(
                 Task.Run(()=>Aggregator.JoinAll(aggregations)),

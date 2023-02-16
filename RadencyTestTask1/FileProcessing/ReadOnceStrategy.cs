@@ -1,5 +1,9 @@
-namespace RadencyTestTask1.FileProcessing;
+using RadencyTestTask1.Entities;
 
+namespace RadencyTestTask1.FileProcessing;
+/// <summary>
+/// Reads all files in directory once and exits. Solely for testing purposes.
+/// </summary>
 public class ReadOnceStrategy : ProcessStrategy
 {
     public override void ProcessDirectory(string path)
@@ -9,10 +13,13 @@ public class ReadOnceStrategy : ProcessStrategy
         {
             Console.WriteLine(filePath);
             if(TokenSource.IsCancellationRequested) return;
-            AggregationSaver.ParsedFiles++;
             ProcessFile(filePath);
         }
         Task.WaitAll(SaveTasks.ToArray());
         SaveTasks.Clear();
+    }
+
+    public ReadOnceStrategy(AppConfig config) : base(config)
+    {
     }
 }
