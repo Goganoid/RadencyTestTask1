@@ -1,23 +1,27 @@
-namespace RadencyTestTask1.FileProcessing;
+using RadencyTestTask1.Entities;
 
+namespace RadencyTestTask1.FileProcessing;
+/// <summary>
+/// Responsible for choosing and using strategies
+/// </summary>
 public class FileProcessor
 {
-    public string Path { get; set; }
+    private readonly AppConfig _config;
     private ProcessStrategy? ProcessStrategy { get; set; }
 
-    public FileProcessor(string path, ProcessingOptions processingOptions)
+    public FileProcessor(AppConfig appConfig)
     {
-        Path = path;
-        ProcessStrategy = processingOptions switch
+        _config = appConfig;
+        ProcessStrategy = _config.Behavior switch
         {
-            ProcessingOptions.ReadOnce => new ReadOnceStrategy(),
-            ProcessingOptions.ReadContinously => new ReadContinouslyStrategy(),
+            ProcessingOptions.ReadOnce => new ReadOnceStrategy(appConfig),
+            ProcessingOptions.ReadContinouosly => new ReadContinuouslyStrategy(appConfig),
             _ => null,
         };
     }
 
     public void Run()
     {
-        ProcessStrategy?.ProcessDirectory(Path);
+        ProcessStrategy?.ProcessDirectory(_config.WatchDirectory);
     }
 }
