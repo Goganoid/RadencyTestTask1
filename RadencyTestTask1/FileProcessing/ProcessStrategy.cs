@@ -59,7 +59,7 @@ public abstract class ProcessStrategy
                 chunk = new();
             }
         }
-        catch (IOException exception)
+        catch
         {
             Console.WriteLine($"File {filePath} is in use, skipping.");
             return;

@@ -27,6 +27,11 @@ public class ReadContinuouslyStrategy : ProcessStrategy
     }
     public override void ProcessDirectory(string path)
     {
+        Console.WriteLine(
+            @"R - restart the app
+S - stop/start the watcher
+C - exit the app
+");
         using var watcher = new FileSystemWatcher(path);
         watcher.Filters.Add("*.csv");
         watcher.Filters.Add("*.txt");
@@ -34,7 +39,6 @@ public class ReadContinuouslyStrategy : ProcessStrategy
         watcher.Created += OnCreated;
         watcher.Error += OnError;
         watcher.EnableRaisingEvents = true;
-        Console.WriteLine("Press C to exit");
         var key = new ConsoleKeyInfo();
         while (!Console.KeyAvailable && key.Key != ConsoleKey.C)
         {
