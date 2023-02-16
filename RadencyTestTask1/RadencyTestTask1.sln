@@ -1,0 +1,16 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RadencyTestTask1", "RadencyTestTask1.csproj", "{FD23B3BC-6EA1-4C31-86B8-B4E32A511AD3}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FD23B3BC-6EA1-4C31-86B8-B4E32A511AD3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FD23B3BC-6EA1-4C31-86B8-B4E32A511AD3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FD23B3BC-6EA1-4C31-86B8-B4E32A511AD3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FD23B3BC-6EA1-4C31-86B8-B4E32A511AD3}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

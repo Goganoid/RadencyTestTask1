@@ -1,0 +1,14 @@
+[{
+  "city": "string",
+  "services": [{
+    "name": "string",
+    "payers": [{
+      "name": "string",
+      "payment": "decimal",
+      "date": "date",
+      "account_number": "long"
+    }],
+    "total": "decimal"
+  }],
+  "total": "decimal"
+}]
