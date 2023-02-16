@@ -1,3 +1,5 @@
+using RadencyTestTask1.Entities;
+
 namespace RadencyTestTask1.FileProcessing;
 
 public class ReadOnceStrategy : ProcessStrategy
@@ -9,10 +11,13 @@ public class ReadOnceStrategy : ProcessStrategy
         {
             Console.WriteLine(filePath);
             if(TokenSource.IsCancellationRequested) return;
-            AggregationSaver.ParsedFiles++;
             ProcessFile(filePath);
         }
         Task.WaitAll(SaveTasks.ToArray());
         SaveTasks.Clear();
+    }
+
+    public ReadOnceStrategy(AppConfig config) : base(config)
+    {
     }
 }

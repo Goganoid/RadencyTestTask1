@@ -20,4 +20,9 @@
     <ItemGroup>
       <Folder Include="watch1" />
     </ItemGroup>
+    <ItemGroup>
+      <None Update="config.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
 </Project>
