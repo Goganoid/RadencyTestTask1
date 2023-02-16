@@ -2,7 +2,9 @@ using RadencyTestTask1.Entities;
 using RadencyTestTask1.Helpers;
 
 namespace RadencyTestTask1.FileProcessing;
-
+/// <summary>
+/// Implements file watcher
+/// </summary>
 public class ReadContinuouslyStrategy : ProcessStrategy
 {
     

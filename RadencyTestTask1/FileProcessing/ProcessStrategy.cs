@@ -11,14 +11,17 @@ public enum ProcessingOptions
     [EnumMember(Value = "ReadContinuously")]
     ReadContinouosly,
 }
+/// <summary>
+/// Abstract class for other strategies and with default ProcessFile implementation
+/// </summary>
 public abstract class ProcessStrategy
 {
-    public AppConfig Config;
-    public CancellationTokenSource TokenSource;
+    protected AppConfig Config;
+    protected CancellationTokenSource TokenSource;
     protected AggregationSaver AggregationSaver { get; set; }
     protected  List<Task> SaveTasks;
 
-    public ProcessStrategy(AppConfig config)
+    protected ProcessStrategy(AppConfig config)
     {
         Config = config;
         TokenSource = new CancellationTokenSource();
@@ -49,10 +52,10 @@ public abstract class ProcessStrategy
             chunk.Add(line);
             if (chunk.Count <= Config.ChunkSize) continue;
             var chunkCopy = chunk;
-            aggregations.Add(Task.Run(() => Aggregator.AggregateLines(chunkCopy,filePath,TokenSource.Token)));
+            aggregations.Add(Task.Run(() => Aggregator.AggregateLines(chunkCopy,TokenSource.Token)));
             chunk = new();
         }
-        if (chunk.Count > 0) aggregations.Add(Task.Run(()=>Aggregator.AggregateLines(chunk,filePath,TokenSource.Token)));
+        if (chunk.Count > 0) aggregations.Add(Task.Run(()=>Aggregator.AggregateLines(chunk,TokenSource.Token)));
         SaveTasks.Add(
             AggregationSaver.SaveTo(
                 Task.Run(()=>Aggregator.JoinAll(aggregations)),

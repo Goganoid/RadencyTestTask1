@@ -1,6 +1,6 @@
 {
   "output_directory": "output",
-  "watch_directory": "watch2",
+  "watch_directory": "watch",
   "chunk_size": 1000,
   "behavior": "ReadContinuously"
 }

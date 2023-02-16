@@ -1,7 +1,9 @@
 using RadencyTestTask1.Entities;
 
 namespace RadencyTestTask1.FileProcessing;
-
+/// <summary>
+/// Reads all files in directory once and exits. Solely for testing purposes.
+/// </summary>
 public class ReadOnceStrategy : ProcessStrategy
 {
     public override void ProcessDirectory(string path)

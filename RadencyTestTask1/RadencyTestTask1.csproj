@@ -7,18 +7,12 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
     <ItemGroup>
-        <Content Include="watch1/*">
-            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-        </Content>
-        <Content Include="watch2/*">
+        <Content Include="watch/*">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
     </ItemGroup>
     <ItemGroup>
       <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-    </ItemGroup>
-    <ItemGroup>
-      <Folder Include="watch1" />
     </ItemGroup>
     <ItemGroup>
       <None Update="config.json">

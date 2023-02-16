@@ -5,11 +5,14 @@ using RadencyTestTask1.Entities;
 
 namespace RadencyTestTask1.Helpers;
 
+/// <summary>
+/// This class is responsible for saving results and generating meta.log
+/// </summary>
 public class AggregationSaver
 {
-    private static int _counter = 0;
-    public int ParsedFiles  = 0;
-    public  int ParsedLines  = 0;
+    private static int _counter;
+    public int ParsedFiles;
+    public int ParsedLines;
     private int _foundErrors;
     private readonly List<string> _invalidFiles  = new();
 
@@ -58,7 +61,8 @@ public class AggregationSaver
             _invalidFiles.Add(invalidFile);
         }
     }
-    public async Task SaveLog()
+
+    private async Task SaveLog()
     {
         var log = GenerateLog();
         Directory.CreateDirectory(_outputDir);
@@ -83,8 +87,9 @@ public class AggregationSaver
             Formatting = Formatting.Indented
         });
         Directory.CreateDirectory(_outputDir);
-        var filePath = Path.Join(_outputDir, $"output{_counter++}");
+        var filePath = Path.Join(_outputDir, $"output{_counter++}.json");
         await File.WriteAllTextAsync(filePath, serialized,token);
+        Console.WriteLine($"Saved results to the {filePath}");
         await SaveLog();
     }
 }

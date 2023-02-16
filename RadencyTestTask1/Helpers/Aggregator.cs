@@ -1,8 +1,9 @@
-using System.Diagnostics;
 using RadencyTestTask1.Entities;
 
-namespace RadencyTestTask1;
-
+namespace RadencyTestTask1.Helpers;
+/// <summary>
+/// This class is responsible for aggregating and parsing lines
+/// </summary>
 public static class Aggregator
 {
     private static List<City> AggregateCities(IEnumerable<InputLine> lines)
@@ -38,7 +39,13 @@ public static class Aggregator
             AccountNumber = line.AccountNumber
         }).ToList();
     }
-    public static AggregationResult AggregateLines(IEnumerable<string> lines, string filePath, CancellationToken cancellationToken)
+    /// <summary>
+    /// Parses and aggregates a batch of lines
+    /// </summary>
+    /// <param name="lines">String lines</param>
+    /// <param name="cancellationToken"></param>
+    /// <returns></returns>
+    public static AggregationResult AggregateLines(IEnumerable<string> lines, CancellationToken cancellationToken)
     {
         List<InputLine> inputLines = new();
         var invalidLines = 0;
@@ -47,11 +54,7 @@ public static class Aggregator
             if (cancellationToken.IsCancellationRequested)
             {
                 Console.WriteLine("Stopped aggregation process");
-                return new AggregationResult
-                {
-                    Aggregation = new(),
-                    InvalidLines = 0
-                };
+                return new AggregationResult {Aggregation = new(), InvalidLines = 0};
             }
             var elements = line
                 .Replace("\"", "")
@@ -93,6 +96,11 @@ public static class Aggregator
         };
     }
 
+    /// <summary>
+    /// Aggregates all smaller aggregations into one
+    /// </summary>
+    /// <param name="tasks">Aggregations</param>
+    /// <returns></returns>
     public static async Task<AggregationResult> JoinAll(List<Task<AggregationResult>> tasks)
     {
         var aggregationResults = await Task.WhenAll(tasks);
@@ -100,19 +108,11 @@ public static class Aggregator
             .Select(a=>a.Aggregation)
             .SelectMany(x => x)
             .GroupBy(x => x.CityName)
-            .Select(group => new City
+            .Select(cityGroup => new City
             {
-                CityName = group.Key,
-                Total = group.Sum(c => c.Total),
-                Services = group
-                    .SelectMany(c => c.Services)
-                    .GroupBy(s => s.Name)
-                    .Select(serviceGroup => new Service
-                    {
-                        Name = serviceGroup.Key,
-                        Total = serviceGroup.Sum(s => s.Total),
-                        Payers = serviceGroup.SelectMany(p => p.Payers).ToList()
-                    }).ToList()
+                CityName = cityGroup.Key,
+                Total = cityGroup.Sum(c => c.Total),
+                Services = JoinServices(cityGroup)
             }).ToList();
         var invalidLines = aggregationResults.Select(a => a.InvalidLines).Sum();
         return new AggregationResult
@@ -121,5 +121,18 @@ public static class Aggregator
             InvalidLines = invalidLines,
         };
     }
-    
+
+    private static List<Service> JoinServices(IEnumerable<City> cityGroup)
+    {
+        return cityGroup
+            .SelectMany(c => c.Services)
+            .GroupBy(s => s.Name)
+            .Select(serviceGroup => new Service
+            {
+                Name = serviceGroup.Key,
+                Total = serviceGroup.Sum(s => s.Total),
+                Payers = serviceGroup.SelectMany(p => p.Payers).ToList()
+            }).ToList();
+    }
+
 }
