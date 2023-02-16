@@ -22,7 +22,12 @@ public class FileProcessor
 
     public void Run()
     {
-        Directory.CreateDirectory(_config.WatchDirectory);
+        if (!Directory.Exists(_config.WatchDirectory))
+        {
+            Console.WriteLine($"Creating directory {_config.WatchDirectory}");
+            Directory.CreateDirectory(_config.WatchDirectory);
+        }
+        Console.WriteLine($"Using directory {_config.WatchDirectory}");
         ProcessStrategy?.ProcessDirectory(_config.WatchDirectory);
     }
 }

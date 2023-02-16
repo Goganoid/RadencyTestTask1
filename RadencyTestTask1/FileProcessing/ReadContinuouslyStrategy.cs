@@ -55,7 +55,7 @@ public class ReadContinuouslyStrategy : ProcessStrategy
             }
         }
         CancelTasks();
-        Console.WriteLine("Ending");
+        Console.WriteLine("Exiting");
     }
 
     private void OnCreated(object sender, FileSystemEventArgs e)

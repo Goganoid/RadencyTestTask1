@@ -41,19 +41,28 @@ public abstract class ProcessStrategy
             _ => throw new NotImplementedException(),
         };
         AggregationSaver.ParsedFiles++;
-        foreach (var line in documentReader.GetLines())
+        try
         {
-            if(TokenSource.IsCancellationRequested)
+            foreach (var line in documentReader.GetLines())
             {
-                Console.WriteLine($"Stopped reading the {filePath}");
-                return;
+                if (TokenSource.IsCancellationRequested)
+                {
+                    Console.WriteLine($"Stopped reading the {filePath}");
+                    return;
+                }
+
+                AggregationSaver.ParsedLines++;
+                chunk.Add(line);
+                if (chunk.Count <= Config.ChunkSize) continue;
+                var chunkCopy = chunk;
+                aggregations.Add(Task.Run(() => Aggregator.AggregateLines(chunkCopy, TokenSource.Token)));
+                chunk = new();
             }
-            AggregationSaver.ParsedLines++;
-            chunk.Add(line);
-            if (chunk.Count <= Config.ChunkSize) continue;
-            var chunkCopy = chunk;
-            aggregations.Add(Task.Run(() => Aggregator.AggregateLines(chunkCopy,TokenSource.Token)));
-            chunk = new();
+        }
+        catch (IOException exception)
+        {
+            Console.WriteLine($"File {filePath} is in use, skipping.");
+            return;
         }
         if (chunk.Count > 0) aggregations.Add(Task.Run(()=>Aggregator.AggregateLines(chunk,TokenSource.Token)));
         SaveTasks.Add(
